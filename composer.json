@@ -1,0 +1,8 @@
+{
+    "name": "youvative/backend",
+    "description": "Youvative backend",
+    "type": "project",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "require": {}
+}
