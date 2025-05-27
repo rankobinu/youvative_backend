@@ -1,12 +1,11 @@
 <?php
-// index.php
+// Prevent header issues
+ob_start();
+
 // Enable CORS for frontend access
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
-error_log("Requested Path: " . $path);
-require_once 'config/database.php';
-require_once 'utils/helpers.php';
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -19,9 +18,12 @@ $request_uri = $_SERVER['REQUEST_URI'];
 $path = parse_url($request_uri, PHP_URL_PATH);
 $path = trim($path, '/');
 
+error_log("Requested Path: " . $path);
+require_once 'config/database.php';
+require_once 'utils/helpers.php';
+
 // Simple routing
 if (strpos($path, 'api/auth') === 0) {
-    // Extract endpoint (after api/auth/)
     $endpoint = substr($path, strlen('api/auth/'));
     $_GET['endpoint'] = $endpoint;
     require_once 'api/auth.php';
@@ -49,5 +51,4 @@ if (strpos($path, 'api/auth') === 0) {
         'error' => 'Endpoint not found',
         'path' => $path
     ]);
-}
-
+}?>
