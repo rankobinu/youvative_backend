@@ -10,6 +10,10 @@ COPY . .
 # Install dependencies (if using Composer)
 RUN composer install || true
 
+# Install PDO and PDO MySQL
+RUN docker-php-ext-install pdo pdo_mysql
+
+
 # Start the PHP built-in server
 CMD ["php", "-S", "0.0.0.0:10000", "-t", "."]
 
