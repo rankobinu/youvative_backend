@@ -11,4 +11,5 @@ COPY . .
 RUN composer install || true
 
 # Start the PHP built-in server
-CMD ["php", "-S", "0.0.0.0:10000"]
+CMD ["php", "-S", "0.0.0.0:10000", "-t", "."]
+
