@@ -1,6 +1,4 @@
 <?php
-// utils/tokenization.php
-
 define('JWT_SECRET', '2005'); // En production, choisis un secret fort et sécurisé
 
 // Fonction pour générer un token JWT

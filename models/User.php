@@ -1,4 +1,3 @@
-// models/User.php
 <?php
 class User {
     private $conn;

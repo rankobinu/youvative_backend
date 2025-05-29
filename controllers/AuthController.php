@@ -1,4 +1,3 @@
-// controllers/AuthController.php
 <?php
 class AuthController {
     private $db;
