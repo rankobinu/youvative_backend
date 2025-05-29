@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: youvative-backend
+    env: php
+    plan: free
+    startCommand: php -S 0.0.0.0:$PORT
+    envVars:
+      - key: DB_HOST
+        value: mysql-1a06f84a-youvative.i.aivencloud.com
+      - key: DB_PORT
+        value: 19652
+      - key: DB_NAME
+        value: defaultdb
+      - key: DB_USER
+        value: avnadmin
+      - key: DB_PASS
+        value: ${DB_PASS}
