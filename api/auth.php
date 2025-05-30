@@ -1,4 +1,15 @@
 <?php
+// Include CORS handling
+require_once 'cors.php';
+
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../controllers/AuthController.php';
+require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../utils/tokenization.php';
+
+header('Content-Type: application/json');
+// ... rest of your code ...
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../controllers/AuthController.php';
 require_once __DIR__ . '/../models/User.php';

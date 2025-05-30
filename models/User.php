@@ -4,7 +4,7 @@ class User {
     private $table_name = "users";
 
     public $id, $email, $username, $password, $instagram, $location, $goal,
-        $occupation, $comment, $strategy_type, $status, $subscription_id, $created_at;
+        $occupation, $comment, $strategy_type, $status, $subscription_id, $created_at, $avatar;
 
     public function __construct($db) {
         $this->conn = $db;
@@ -12,9 +12,10 @@ class User {
 
     public function create() {
         $query = "INSERT INTO $this->table_name
-            (email, username, password, instagram, location, goal, occupation, comment, strategy_type, status, created_at)
-            VALUES
-            (:email, :username, :password, :instagram, :location, :goal, :occupation, :comment, :strategy_type, :status, NOW())";
+        (email, username, password, instagram, location, goal, occupation, comment, strategy_type, status, avatar, created_at)
+        VALUES
+        (:email, :username, :password, :instagram, :location, :goal, :occupation, :comment, :strategy_type, :status, :avatar, NOW())
+        ";
 
         $stmt = $this->conn->prepare($query);
         $this->email = htmlspecialchars(strip_tags($this->email));
@@ -27,6 +28,8 @@ class User {
         $this->comment = htmlspecialchars(strip_tags($this->comment));
         $this->strategy_type = htmlspecialchars(strip_tags($this->strategy_type));
         $this->status = "active";
+        $this->avatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=" . urlencode($this->email);
+
 
         $stmt->bindParam(":email", $this->email);
         $stmt->bindParam(":username", $this->username);
@@ -38,6 +41,7 @@ class User {
         $stmt->bindParam(":comment", $this->comment);
         $stmt->bindParam(":strategy_type", $this->strategy_type);
         $stmt->bindParam(":status", $this->status);
+        $stmt->bindParam(":avatar", $this->avatar);
 
         return $stmt->execute() ? $this->conn->lastInsertId() : false;
     }

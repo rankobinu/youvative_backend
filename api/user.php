@@ -1,4 +1,6 @@
 <?php
+// Include CORS handling
+require_once 'cors.php';
 // Include database and controllers
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../controllers/AuthController.php';

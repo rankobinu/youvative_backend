@@ -1,4 +1,6 @@
 <?php
+// Include CORS handling
+require_once 'cors.php';
 // Include database and controllers
 require_once 'config/database.php';
 require_once 'controllers/SubscriptionController.php';
