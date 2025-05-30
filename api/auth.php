@@ -1,6 +1,8 @@
 <?php
 header('Content-Type: application/json');
-// ... rest of your code ...
+header("Access-Control-Allow-Origin: http://localhost:5173");
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../controllers/AuthController.php';
@@ -11,10 +13,7 @@ $endpoint = $_GET['endpoint'] ?? '';
 
 // Handle preflight OPTIONS request for CORS
 if ($method === 'OPTIONS') {
-    header("Access-Control-Allow-Origin: http://localhost:5173");
-    header("Access-Control-Allow-Credentials: true");
-    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-    header("Access-Control-Allow-Headers: Content-Type, Authorization");
+    
     http_response_code(200);
     exit();
 }
