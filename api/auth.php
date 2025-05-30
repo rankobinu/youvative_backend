@@ -1,9 +1,4 @@
 <?php
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../controllers/AuthController.php';
-require_once __DIR__ . '/../models/User.php';
-require_once __DIR__ . '/../utils/tokenization.php';
-
 header('Content-Type: application/json');
 // ... rest of your code ...
 
@@ -11,10 +6,18 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../controllers/AuthController.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../utils/tokenization.php';
-
-header('Content-Type: application/json');
 $method = $_SERVER['REQUEST_METHOD'];
 $endpoint = $_GET['endpoint'] ?? '';
+
+// Handle preflight OPTIONS request for CORS
+if ($method === 'OPTIONS') {
+    header("Access-Control-Allow-Origin: http://localhost:5173");
+    header("Access-Control-Allow-Credentials: true");
+    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type, Authorization");
+    http_response_code(200);
+    exit();
+}
 
 $database = new Database();
 $db = $database->getConnection();
