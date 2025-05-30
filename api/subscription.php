@@ -1,6 +1,4 @@
 <?php
-// Include CORS handling
-require_once 'cors.php';
 // Include necessary files
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../utils/tokenization.php';
