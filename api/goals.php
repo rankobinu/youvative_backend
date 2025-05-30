@@ -1,5 +1,4 @@
 <?php
-// api/goals.php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/MonthlyGoal.php';
 require_once __DIR__ . '/../utils/tokenization.php';

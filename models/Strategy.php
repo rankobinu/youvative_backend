@@ -1,4 +1,3 @@
-// models/Strategy.php
 <?php
 class Strategy {
     private $conn;

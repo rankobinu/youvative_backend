@@ -1,4 +1,3 @@
-// api/subscription_cancel.php
 <?php
 // Include database and controllers
 require_once 'config/database.php';

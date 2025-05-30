@@ -1,7 +1,4 @@
 <?php
-// api/strategy.php
-
-// Include necessary files
 require_once __DIR__ . '/../utils/tokenization.php';  // Include this first
 require_once __DIR__ . '/../utils/helpers.php';       // Then include helpers
 require_once __DIR__ . '/../controllers/StrategyController.php';

@@ -1,4 +1,3 @@
-// controllers/StrategyController.php
 <?php
 require_once __DIR__ . '/../models/Strategy.php';
 require_once __DIR__ . '/../models/User.php';

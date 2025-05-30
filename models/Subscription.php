@@ -1,4 +1,3 @@
-// models/Subscription.php
 <?php
 class Subscription {
     private $conn;

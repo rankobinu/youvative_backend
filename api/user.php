@@ -1,4 +1,3 @@
-// api/user.php
 <?php
 // Include database and controllers
 require_once __DIR__ . '/../config/database.php';

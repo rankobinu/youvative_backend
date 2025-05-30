@@ -1,6 +1,4 @@
 <?php
-// api/profile.php
-
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../controllers/ProfileController.php';
 require_once __DIR__ . '/../utils/tokenization.php';

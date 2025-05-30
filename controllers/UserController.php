@@ -1,4 +1,3 @@
-// controllers/UserController.php
 <?php
 require_once 'models/User.php';
 require_once 'models/Subscription.php';
