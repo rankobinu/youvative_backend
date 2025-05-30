@@ -45,6 +45,25 @@ if ($method === 'POST') {
             http_response_code($result['status'] ? 200 : 404);
             echo json_encode($result);
             break;
+        case 'test-db':
+            try {
+                // Run a simple query to test DB connection
+                $stmt = $db->query('SELECT 1');
+                $result = $stmt->fetch();
+
+                if ($result) {
+                    http_response_code(200);
+                    echo json_encode(['success' => true, 'message' => 'Database connection is OK']);
+                } else {
+                    http_response_code(500);
+                    echo json_encode(['success' => false, 'message' => 'Failed to fetch from database']);
+                }
+            } catch (PDOException $e) {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+            }
+            break;
+
         default:
             http_response_code(404);
             echo json_encode(['error' => 'Endpoint not found']);
