@@ -9,6 +9,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+if (!isset($_SERVER['HTTP_AUTHORIZATION'])) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+    exit();
+}
+
 require_once __DIR__ . '/../../config/database.php';
 
 try {
@@ -21,7 +27,7 @@ try {
         'new_users' => (int)$db->query("SELECT COUNT(*) FROM users WHERE status = 'new subscriber'") ->fetchColumn(),
         'active_users' => (int)$db->query("SELECT COUNT(*) FROM users WHERE status = 'active'")->fetchColumn(),
         'inactive_users' => (int)$db->query("SELECT COUNT(*) FROM users WHERE status = 'inactive'")->fetchColumn(),
-        'resubscribed_users' => (int)$db->query("SELECT COUNT(DISTINCT user_id) FROM users WHERE status = 'resubscribed'") ->fetchColumn()
+        'resubscribed_users' => (int)$db->query("SELECT COUNT(*) FROM users WHERE status = 'resubscribed'") ->fetchColumn()
     ];
 
     echo json_encode(['success' => true, 'data' => $stats]);
