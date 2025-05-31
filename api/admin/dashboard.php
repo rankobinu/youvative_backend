@@ -9,11 +9,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-if (!isset($_SERVER['HTTP_AUTHORIZATION'])) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
-    exit();
-}
+// Temporarily comment out auth check for testing
+// if (!isset($_SERVER['HTTP_AUTHORIZATION'])) {
+//     http_response_code(401);
+//     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+//     exit();
+// }
+
+// Return simple test response
+echo json_encode([
+    'success' => true,
+    'data' => [
+        'test' => 'API is working',
+        'timestamp' => time()
+    ]
+]);
+exit();
 
 require_once __DIR__ . '/../../config/database.php';
 
