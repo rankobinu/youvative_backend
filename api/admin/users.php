@@ -24,20 +24,14 @@ require_once __DIR__ . '/../../utils/helpers.php';
 // Get the bearer token
 $token = getBearerToken();
 
-// Check if the user is authenticated and is an admin
+// Check if the user is authenticated
 if (!$token || !isAuthenticated($token)) {
     http_response_code(401);
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit();
 }
 
-// Verify admin privileges
-$payload = getTokenPayload($token);
-if (!isset($payload['type']) || $payload['type'] !== 'admin') {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'error' => 'Forbidden: Admin access required']);
-    exit();
-}
+// Removed admin verification check
 
 // Get the endpoint parameter
 $endpoint = $_GET['endpoint'] ?? '';
@@ -156,3 +150,4 @@ try {
         'details' => $e->getMessage() // Remove in production
     ]);
 }
+
