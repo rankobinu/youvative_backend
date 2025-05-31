@@ -44,7 +44,9 @@ if (strpos($path, 'api/auth') === 0) {
     $_GET['endpoint'] = $endpoint;
     require_once 'api/strategy.php';
 
-} elseif (strpos($path, 'api/dashboard') === 0) {
+} elseif (strpos($path, 'api/admin/dashboard') === 0) {
+    $endpoint = substr($path, strlen('api/admin/dashboard/'));
+    $_GET['endpoint'] = $endpoint;
     require_once 'api/admin/dashboard.php';
 
 } else {
