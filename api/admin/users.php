@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Include necessary files
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../utils/tokenization.php';
+require_once __DIR__ . '/../../utils/helpers.php';
 
 // Get the bearer token
 $token = getBearerToken();
