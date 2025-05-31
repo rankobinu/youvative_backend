@@ -5,8 +5,7 @@ $allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
     'https://youvative.com',
-    'https://www.youvative.com',
-    'https://youvative-frontend.onrender.com'
+    'https://www.youvative.com'
 ];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $allowedOrigins)) {
