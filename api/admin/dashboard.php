@@ -16,22 +16,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Temporarily comment out auth check for testing
-// if (!isset($_SERVER['HTTP_AUTHORIZATION'])) {
-//     http_response_code(401);
-//     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
-//     exit();
-// }
 
-// Return simple test response
-echo json_encode([
-    'success' => true,
-    'data' => [
-        'test' => 'API is working',
-        'timestamp' => time()
-    ]
-]);
-exit();
+if (!isset($_SERVER['HTTP_AUTHORIZATION'])) {
+   http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+    exit();
+}
+
+
 
 require_once __DIR__ . '/../../config/database.php';
 
@@ -39,18 +31,30 @@ try {
     $database = new Database();
     $db = $database->getConnection();
 
-    // Get basic user statistics
-    $stats = [
-        'total_users' => (int)$db->query("SELECT COUNT(*) FROM users")->fetchColumn(),
-        'new_users' => (int)$db->query("SELECT COUNT(*) FROM users WHERE status = 'new subscriber'") ->fetchColumn(),
-        'active_users' => (int)$db->query("SELECT COUNT(*) FROM users WHERE status = 'active'")->fetchColumn(),
-        'inactive_users' => (int)$db->query("SELECT COUNT(*) FROM users WHERE status = 'inactive'")->fetchColumn(),
-        'resubscribed_users' => (int)$db->query("SELECT COUNT(*) FROM users WHERE status = 'resubscribed'") ->fetchColumn()
-    ];
+    // Fetch all counts in a single query for efficiency
+    $stmt = $db->query("SELECT 
+        COUNT(*) as total_users,
+        SUM(status = 'new subscriber') as new_users,
+        SUM(status = 'active') as active_users,
+        SUM(status = 'inactive') as inactive_users,
+        SUM(status = 'resubscribed') as resubscribed_users
+        FROM users");
+    
+    $stats = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    echo json_encode(['success' => true, 'data' => $stats]);
+    // Convert all values to integers
+    $stats = array_map('intval', $stats);
+
+    echo json_encode([
+        'success' => true,
+        'data' => $stats
+    ]);
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Database error']);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Database error',
+        'details' => $e->getMessage() // Only for development
+    ]);
 }
