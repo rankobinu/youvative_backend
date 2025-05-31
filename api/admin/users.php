@@ -20,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../utils/tokenization.php';
 require_once __DIR__ . '/../../utils/helpers.php';
+require_once __DIR__ . '/../../controllers/UserController.php';
 
 // Get the bearer token
 $token = getBearerToken();
@@ -31,8 +32,6 @@ if (!$token || !isAuthenticated($token)) {
     exit();
 }
 
-// Removed admin verification check
-
 // Get the endpoint parameter
 $endpoint = $_GET['endpoint'] ?? '';
 
@@ -40,106 +39,37 @@ $endpoint = $_GET['endpoint'] ?? '';
 $database = new Database();
 $db = $database->getConnection();
 
+// Create user controller
+$userController = new UserController($db);
+
 // Pagination parameters
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
-$offset = ($page - 1) * $limit;
 
 try {
-    switch ($endpoint) {
-        case 'active':
-            // List active users
-            $query = "SELECT id, username, email, created_at, status 
-                     FROM users 
-                     WHERE status = 'active' 
-                     ORDER BY created_at DESC 
-                     LIMIT :limit OFFSET :offset";
-            $stmt = $db->prepare($query);
-            $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-            $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            // Count total for pagination
-            $countStmt = $db->query("SELECT COUNT(*) FROM users WHERE status = 'active'");
-            $total = $countStmt->fetchColumn();
-            
-            break;
-            
-        case 'new':
-            // List new subscribers
-            $query = "SELECT id, username, email, created_at, status 
-                     FROM users 
-                     WHERE status = 'new subscriber' 
-                     ORDER BY created_at DESC 
-                     LIMIT :limit OFFSET :offset";
-            $stmt = $db->prepare($query);
-            $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-            $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            // Count total for pagination
-            $countStmt = $db->query("SELECT COUNT(*) FROM users WHERE status = 'new subscriber'");
-            $total = $countStmt->fetchColumn();
-            
-            break;
-            
-        case 'inactive':
-            // List inactive users
-            $query = "SELECT id, username, email, created_at, status 
-                     FROM users 
-                     WHERE status = 'inactive' 
-                     ORDER BY created_at DESC 
-                     LIMIT :limit OFFSET :offset";
-            $stmt = $db->prepare($query);
-            $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-            $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            // Count total for pagination
-            $countStmt = $db->query("SELECT COUNT(*) FROM users WHERE status = 'inactive'");
-            $total = $countStmt->fetchColumn();
-            
-            break;
-            
-        case 'resubscribed':
-            // List resubscribed users
-            $query = "SELECT id, username, email, created_at, status 
-                     FROM users 
-                     WHERE status = 'resubscribed' 
-                     ORDER BY created_at DESC 
-                     LIMIT :limit OFFSET :offset";
-            $stmt = $db->prepare($query);
-            $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-            $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            // Count total for pagination
-            $countStmt = $db->query("SELECT COUNT(*) FROM users WHERE status = 'resubscribed'");
-            $total = $countStmt->fetchColumn();
-            
-            break;
-            
-        default:
-            http_response_code(404);
-            echo json_encode(['success' => false, 'error' => 'Endpoint not found']);
-            exit();
+    // Map endpoint to user status
+    $statusMap = [
+        'active' => 'active',
+        'new' => 'new subscriber',
+        'inactive' => 'inactive',
+        'resubscribed' => 'resubscribed'
+    ];
+    
+    if (!isset($statusMap[$endpoint])) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'error' => 'Endpoint not found']);
+        exit();
     }
     
-    // Fetch all users
-    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $status = $statusMap[$endpoint];
     
-    // Return response with pagination info
+    // Get users by status using the controller
+    $result = $userController->getUsersByStatus($status, $page, $limit);
+    
+    // Return response
     echo json_encode([
         'success' => true,
-        'data' => [
-            'users' => $users,
-            'pagination' => [
-                'total' => $total,
-                'page' => $page,
-                'limit' => $limit,
-                'pages' => ceil($total / $limit)
-            ]
-        ]
+        'data' => $result
     ]);
 
 } catch (PDOException $e) {
@@ -150,4 +80,6 @@ try {
         'details' => $e->getMessage() // Remove in production
     ]);
 }
+
+
 

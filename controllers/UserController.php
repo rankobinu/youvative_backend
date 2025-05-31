@@ -2,12 +2,21 @@
 require_once 'models/User.php';
 require_once 'models/Subscription.php';
 require_once 'models/Strategy.php';
+require_once 'utils/subscription_checker.php';
 
 class UserController {
     private $db;
 
     public function __construct($db) {
         $this->db = $db;
+    }
+
+    /**
+     * Update all user subscription statuses before fetching users
+     * This ensures we have the most current status information
+     */
+    private function updateUserStatuses() {
+        updateAllUserSubscriptionStatuses($this->db);
     }
 
     public function getProfile($user_id) {
@@ -154,6 +163,81 @@ class UserController {
                 'message' => 'User not found'
             ];
         }
+    }
+
+    public function getUsersByStatus($status, $page = 1, $limit = 10) {
+        // First update all user statuses to ensure they're current
+        $this->updateUserStatuses();
+        
+        $offset = ($page - 1) * $limit;
+        
+        // Get users by status with pagination
+        $query = "SELECT id, username, email, created_at, status 
+                 FROM users 
+                 WHERE status = :status 
+                 ORDER BY created_at DESC 
+                 LIMIT :limit OFFSET :offset";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':status', $status);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Count total for pagination
+        $countQuery = "SELECT COUNT(*) FROM users WHERE status = :status";
+        $countStmt = $this->db->prepare($countQuery);
+        $countStmt->bindParam(':status', $status);
+        $countStmt->execute();
+        $total = $countStmt->fetchColumn();
+        
+        return [
+            'users' => $users,
+            'pagination' => [
+                'total' => $total,
+                'page' => $page,
+                'limit' => $limit,
+                'pages' => ceil($total / $limit)
+            ]
+        ];
+    }
+
+    public function getAllUsers($page = 1, $limit = 10) {
+        // First update all user statuses
+        $this->updateUserStatuses();
+        
+        $offset = ($page - 1) * $limit;
+        
+        // Get all users with pagination
+        $query = "SELECT id, username, email, created_at, status 
+                 FROM users 
+                 ORDER BY created_at DESC 
+                 LIMIT :limit OFFSET :offset";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Count total for pagination
+        $countQuery = "SELECT COUNT(*) FROM users";
+        $countStmt = $this->db->prepare($countQuery);
+        $countStmt->execute();
+        $total = $countStmt->fetchColumn();
+        
+        return [
+            'users' => $users,
+            'pagination' => [
+                'total' => $total,
+                'page' => $page,
+                'limit' => $limit,
+                'pages' => ceil($total / $limit)
+            ]
+        ];
     }
 }
 ?>
