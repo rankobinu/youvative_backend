@@ -44,6 +44,9 @@ if (strpos($path, 'api/auth') === 0) {
     $_GET['endpoint'] = $endpoint;
     require_once 'api/strategy.php';
 
+} elseif (strpos($path, 'api/dashboard/user_stats') === 0) {
+    require_once 'api/dashboard/user_stats.php';
+
 } else {
     // API documentation or unknown endpoint
     header('Content-Type: application/json');

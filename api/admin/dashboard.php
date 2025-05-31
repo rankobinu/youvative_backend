@@ -1,0 +1,34 @@
+<?php
+header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: http://localhost:5173");
+header("Access-Control-Allow-Methods: GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+require_once __DIR__ . '/../../config/database.php';
+
+try {
+    $database = new Database();
+    $db = $database->getConnection();
+
+    // Get basic user statistics
+    $stats = [
+        'total_users' => (int)$db->query("SELECT COUNT(*) FROM users")->fetchColumn(),
+        'new_users' => (int)$db->query("SELECT COUNT(*) FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)")->fetchColumn(),
+        'active_users' => (int)$db->query("SELECT COUNT(*) FROM users WHERE status = 'active'")->fetchColumn(),
+        'inactive_users' => (int)$db->query("SELECT COUNT(*) FROM users WHERE status = 'inactive'")->fetchColumn(),
+        'resubscribed_users' => (int)$db->query("SELECT COUNT(DISTINCT user_id) FROM subscriptions GROUP BY user_id HAVING COUNT(*) > 1")->fetchColumn(),
+        'subscription_plans' => $db->query("SELECT plan, COUNT(*) as count FROM subscriptions GROUP BY plan")->fetchAll(PDO::FETCH_ASSOC),
+        'last_updated' => date('Y-m-d H:i:s')
+    ];
+
+    echo json_encode(['success' => true, 'data' => $stats]);
+
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Database error']);
+}
