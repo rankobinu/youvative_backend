@@ -14,10 +14,12 @@ class AuthController {
         foreach ($data as $key => $val) {
             if ($key === 'password') {
                 $user->password = password_hash($val, PASSWORD_BCRYPT); // hash ici
-            } elseif (property_exists($user, $key)) {
+            } elseif ($key !== 'status' && property_exists($user, $key)) { // Skip status if provided
                 $user->$key = $val;
             }
         }
+        // Status will be set to "new subscriber" in the User::create() method
+        
         $user_id = $user->create();
         if ($user_id) {
             $token = generateToken(['id' => $user_id, 'email' => $user->email, 'username' => $user->username]);

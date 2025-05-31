@@ -18,12 +18,10 @@ try {
     // Get basic user statistics
     $stats = [
         'total_users' => (int)$db->query("SELECT COUNT(*) FROM users")->fetchColumn(),
-        'new_users' => (int)$db->query("SELECT COUNT(*) FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)")->fetchColumn(),
+        'new_users' => (int)$db->query("SELECT COUNT(*) FROM users WHERE status = 'new subscriber'") ->fetchColumn(),
         'active_users' => (int)$db->query("SELECT COUNT(*) FROM users WHERE status = 'active'")->fetchColumn(),
         'inactive_users' => (int)$db->query("SELECT COUNT(*) FROM users WHERE status = 'inactive'")->fetchColumn(),
-        'resubscribed_users' => (int)$db->query("SELECT COUNT(DISTINCT user_id) FROM subscriptions GROUP BY user_id HAVING COUNT(*) > 1")->fetchColumn(),
-        'subscription_plans' => $db->query("SELECT plan, COUNT(*) as count FROM subscriptions GROUP BY plan")->fetchAll(PDO::FETCH_ASSOC),
-        'last_updated' => date('Y-m-d H:i:s')
+        'resubscribed_users' => (int)$db->query("SELECT COUNT(DISTINCT user_id) FROM users WHERE status = 'resubscribed'") ->fetchColumn()
     ];
 
     echo json_encode(['success' => true, 'data' => $stats]);

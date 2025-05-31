@@ -27,7 +27,7 @@ class User {
         $this->occupation = htmlspecialchars(strip_tags($this->occupation));
         $this->comment = htmlspecialchars(strip_tags($this->comment));
         $this->strategy_type = htmlspecialchars(strip_tags($this->strategy_type));
-        $this->status = "active";
+        $this->status = "new subscriber"; // Changed from "active" to "new subscriber"
         $this->avatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=" . urlencode($this->email);
 
 
