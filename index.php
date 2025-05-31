@@ -3,7 +3,14 @@
 ob_start();
 
 // Enable CORS for frontend access
-header("Access-Control-Allow-Origin: http://localhost:5173");
+$allowedOrigins = [
+    'http://localhost:5173',
+    'https://your-production-frontend-url.com'
+];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowedOrigins)) {
+    header("Access-Control-Allow-Origin: $origin");
+}
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
@@ -45,7 +52,7 @@ if (strpos($path, 'api/auth') === 0) {
     require_once 'api/strategy.php';
 
 } elseif (strpos($path, 'api/admin/dashboard') === 0) {
-    $endpoint = substr($path, strlen('api/admin/dashboard'));
+    $endpoint = substr($path, strlen('api/admin/dashboard/'));
     $_GET['endpoint'] = $endpoint;
     require_once 'api/admin/dashboard.php';
 
