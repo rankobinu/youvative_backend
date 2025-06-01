@@ -49,7 +49,16 @@ class StrategyController {
         $strategy_id = $strategy->create();
 
         if ($strategy_id) {
-            return ['status' => true, 'message' => 'Strategy created successfully', 'strategy_id' => $strategy_id];
+            // If this is a general strategy, update user status from 'new subscriber' to 'active'
+            if ($data['strategy_type'] === 'general') {
+                $this->activateNewUser($user_id);
+            }
+            
+            return [
+                'status' => true, 
+                'message' => 'Strategy created successfully', 
+                'strategy_id' => $strategy_id
+            ];
         }
 
         return ['status' => false, 'error' => 'Failed to create strategy'];
@@ -106,6 +115,13 @@ class StrategyController {
         }
 
         return ['status' => false, 'error' => 'Failed to delete strategy'];
+    }
+
+    private function activateNewUser($user_id) {
+        $query = "UPDATE users SET status = 'active' WHERE id = :user_id AND status = 'new subscriber'";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        return $stmt->execute();
     }
 }
 
