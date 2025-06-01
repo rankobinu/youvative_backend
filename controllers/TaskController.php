@@ -46,19 +46,38 @@ class TaskController {
     }
 
     public function updateTask($user_id, $task_id, $data) {
-        $validStatuses = ['done', 'missed', 'upcoming'];
-        if (!in_array($data['status'], $validStatuses)) {
-            return ['status' => false, 'error' => 'Invalid status value'];
+        // First, get the current task data
+        $currentTask = new Task($this->db);
+        $currentTask->task_id = $task_id;
+        $currentTask->user_id = $user_id;
+        
+        $stmt = $this->db->prepare("SELECT * FROM tasks WHERE task_id = ? AND user_id = ?");
+        $stmt->execute([$task_id, $user_id]);
+        $taskData = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$taskData) {
+            return ['status' => false, 'error' => 'Task not found'];
+        }
+        
+        // Validate status if it's being updated
+        if (isset($data['status'])) {
+            $validStatuses = ['done', 'missed', 'upcoming'];
+            if (!in_array($data['status'], $validStatuses)) {
+                return ['status' => false, 'error' => 'Invalid status value'];
+            }
         }
 
+        // Create a new task object with the current values
         $task = new Task($this->db);
         $task->task_id = $task_id;
         $task->user_id = $user_id;
-        $task->type = $data['type'];
-        $task->headline = $data['headline'];
-        $task->purpose = $data['purpose'];
-        $task->date = $data['date'];
-        $task->status = $data['status'];
+        
+        // Only update fields that are provided in the request
+        $task->type = $data['type'] ?? $taskData['type'];
+        $task->headline = $data['headline'] ?? $taskData['headline'];
+        $task->purpose = $data['purpose'] ?? $taskData['purpose'];
+        $task->date = $data['date'] ?? $taskData['date'];
+        $task->status = $data['status'] ?? $taskData['status'];
 
         if ($task->update()) {
             return ['status' => true, 'message' => 'Task updated'];
