@@ -62,17 +62,14 @@ if (!isset($data['user_id']) ||
     exit();
 }
 
-// Database connection
 $database = new Database();
 $db = $database->getConnection();
 
 try {
-    // Handle based on strategy type
     if ($strategy_type === 'global') {
-        // Create global strategy
         $strategy = new Strategy($db);
         $strategy->user_id = $data['user_id'];
-        $strategy->strategy_type = 'general'; // Set type to general
+        $strategy->strategy_type = 'general';
         $strategy->goal = $data['goal'];
         $strategy->description = $data['description'];
         
@@ -81,13 +78,11 @@ try {
             throw new Exception("Failed to create global strategy");
         }
         
-        // Update user status to 'active' if they were 'new subscriber'
         $query = "UPDATE users SET status = 'active' WHERE id = :user_id AND status = 'new subscriber'";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':user_id', $data['user_id'], PDO::PARAM_INT);
         $stmt->execute();
         
-        // Return success response
         echo json_encode([
             'success' => true,
             'message' => 'Global strategy created successfully',
@@ -97,37 +92,66 @@ try {
             ]
         ]);
     } else {
-        // Start transaction for monthly strategy
         $db->beginTransaction();
         
-        // Create monthly goal (strategy)
         $strategy = new Strategy($db);
         $strategy->user_id = $data['user_id'];
-        $strategy->strategy_type = 'monthly'; // Set type to monthly
-        $strategy->goal = $data['goal'];
-        $strategy->description = $data['description'];
+        $existingMonthlyStrategy = null;
         
-        $strategy_id = $strategy->create();
-        if (!$strategy_id) {
-            throw new Exception("Failed to create monthly strategy");
+        $query = "SELECT id FROM strategies WHERE user_id = :user_id AND strategy_type = 'monthly' ORDER BY created_at DESC LIMIT 1";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':user_id', $data['user_id'], PDO::PARAM_INT);
+        $stmt->execute();
+        
+        if ($stmt->rowCount() > 0) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $existingMonthlyStrategy = $row['id'];
+            
+            $strategy->id = $existingMonthlyStrategy;
+            $strategy->strategy_type = 'monthly';
+            $strategy->goal = $data['goal'];
+            $strategy->description = $data['description'];
+            
+            if (!$strategy->update()) {
+                throw new Exception("Failed to update monthly strategy");
+            }
+            
+            $strategy_id = $existingMonthlyStrategy;
+            $isUpdate = true;
+        } else {
+            $strategy->strategy_type = 'monthly';
+            $strategy->goal = $data['goal'];
+            $strategy->description = $data['description'];
+            
+            $strategy_id = $strategy->create();
+            if (!$strategy_id) {
+                throw new Exception("Failed to create monthly strategy");
+            }
+            $isUpdate = false;
         }
         
-        // Create tasks if provided
         $tasks = [];
         if (isset($data['tasks']) && is_array($data['tasks'])) {
+            if ($isUpdate) {
+                // Delete existing tasks associated with this strategy
+                $deleteTasksQuery = "DELETE FROM tasks WHERE user_id = :user_id";
+                $deleteStmt = $db->prepare($deleteTasksQuery);
+                $deleteStmt->bindParam(':user_id', $data['user_id'], PDO::PARAM_INT);
+                $deleteStmt->execute();
+            }
+            
             foreach ($data['tasks'] as $taskData) {
-                // Verify user_id is set
                 if (!isset($data['user_id'])) {
                     throw new Exception("User ID is required for tasks");
                 }
                 
                 $task = new Task($db);
-                $task->user_id = $data['user_id']; // Connect task to user
+                $task->user_id = $data['user_id'];
                 $task->type = $taskData['type'];
                 $task->headline = $taskData['headline'];
                 $task->purpose = $taskData['purpose'];
                 $task->date = $taskData['date'];
-                $task->status = 'upcoming'; // Default status
+                $task->status = 'upcoming';
                 
                 $task_id = $task->create();
                 if (!$task_id) {
@@ -143,23 +167,21 @@ try {
             }
         }
         
-        // Commit transaction
         $db->commit();
         
-        // Return success response
         echo json_encode([
             'success' => true,
-            'message' => 'Monthly strategy created successfully',
+            'message' => $isUpdate ? 'Monthly strategy updated successfully' : 'Monthly strategy created successfully',
             'data' => [
                 'strategy_id' => $strategy_id,
                 'created_at' => date('Y-m-d H:i:s'),
+                'updated' => $isUpdate,
                 'tasks' => $tasks
             ]
         ]);
     }
     
 } catch (Exception $e) {
-    // Rollback transaction if it was started
     if ($strategy_type === 'monthly' && $db->inTransaction()) {
         $db->rollBack();
     }
@@ -167,10 +189,11 @@ try {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'error' => "Failed to create {$strategy_type} strategy",
+        'error' => "Failed to " . ($isUpdate ?? false ? "update" : "create") . " {$strategy_type} strategy",
         'message' => $e->getMessage()
     ]);
 }
+
 
 
 
