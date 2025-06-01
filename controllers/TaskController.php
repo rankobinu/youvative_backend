@@ -67,7 +67,10 @@ class TaskController {
         $currentTask->task_id = $task_id;
         $currentTask->user_id = $user_id;
         
-        $stmt = $this->db->prepare("SELECT * FROM tasks WHERE task_id = ? AND user_id = ?");
+        // Check the actual column name in your database table
+        // The error suggests that 'task_id' might not be the correct column name
+        // It could be 'id' instead
+        $stmt = $this->db->prepare("SELECT * FROM tasks WHERE id = ? AND user_id = ?");
         $stmt->execute([$task_id, $user_id]);
         $taskData = $stmt->fetch(PDO::FETCH_ASSOC);
         

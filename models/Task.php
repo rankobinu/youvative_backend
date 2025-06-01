@@ -28,13 +28,13 @@ class Task {
     }
 
     public function delete() {
-        $stmt = $this->conn->prepare("DELETE FROM tasks WHERE task_id = ?");
+        $stmt = $this->conn->prepare("DELETE FROM tasks WHERE id = ?");
         return $stmt->execute([$this->task_id]);
     }
 
     public function update() {
         $query = "UPDATE tasks SET type = :type, headline = :headline, purpose = :purpose, date = :date, status = :status 
-                  WHERE task_id = :task_id AND user_id = :user_id";
+                  WHERE id = :task_id AND user_id = :user_id";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([
             ':type' => $this->type,
