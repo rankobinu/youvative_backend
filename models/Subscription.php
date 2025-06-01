@@ -140,12 +140,12 @@ class Subscription {
         
         return [
             'id' => $this->id,
-            'plan' => $this->plan,
+            'plan_type' => $this->plan,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
             'days_left' => $this->getDaysLeft(),
             'is_active' => $this->isActive($this->user_id),
-            //'card_last_four' => substr($this->card_number, -4)
+            'card_last_four' => substr($this->card_number, -4)
         ];
     }
 }
