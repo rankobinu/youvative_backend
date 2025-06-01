@@ -6,11 +6,10 @@ class Subscription {
     // Subscription properties
     public $id;
     public $user_id;
-    public $customer_id;
     public $start_date;
     public $end_date;
     public $plan;
-    public $card_token;
+    public $card_number;
     public $expiry_date;
     public $cvv;
 
@@ -21,29 +20,27 @@ class Subscription {
     // Create subscription
     public function create() {
         $query = "INSERT INTO " . $this->table_name . " 
-                  (user_id, customer_id, start_date, end_date, plan, card_token, expiry_date, cvv) 
+                  (user_id, start_date, end_date, plan, card_number, expiry_date, cvv) 
                   VALUES 
-                  (:user_id, :customer_id, :start_date, :end_date, :plan, :card_token, :expiry_date, :cvv)";
+                  (:user_id, :start_date, :end_date, :plan, :card_number, :expiry_date, :cvv)";
 
         $stmt = $this->conn->prepare($query);
 
         // Sanitize inputs
         $this->user_id = htmlspecialchars(strip_tags($this->user_id));
-        $this->customer_id = htmlspecialchars(strip_tags($this->customer_id));
         $this->start_date = htmlspecialchars(strip_tags($this->start_date));
         $this->end_date = htmlspecialchars(strip_tags($this->end_date));
         $this->plan = htmlspecialchars(strip_tags($this->plan));
-        $this->card_token = htmlspecialchars(strip_tags($this->card_token));
+        $this->card_number = htmlspecialchars(strip_tags($this->card_number));
         $this->expiry_date = htmlspecialchars(strip_tags($this->expiry_date));
         $this->cvv = htmlspecialchars(strip_tags($this->cvv));
 
         // Bind parameters
         $stmt->bindParam(":user_id", $this->user_id);
-        $stmt->bindParam(":customer_id", $this->customer_id);
         $stmt->bindParam(":start_date", $this->start_date);
         $stmt->bindParam(":end_date", $this->end_date);
         $stmt->bindParam(":plan", $this->plan);
-        $stmt->bindParam(":card_token", $this->card_token);
+        $stmt->bindParam(":card_number", $this->card_number);
         $stmt->bindParam(":expiry_date", $this->expiry_date);
         $stmt->bindParam(":cvv", $this->cvv);
 
@@ -63,11 +60,10 @@ class Subscription {
         if($stmt->rowCount() > 0) {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $this->id = $row['id'];
-            $this->customer_id = $row['customer_id'];
             $this->start_date = $row['start_date'];
             $this->end_date = $row['end_date'];
             $this->plan = $row['plan'];
-            $this->card_token = $row['card_token'];
+            $this->card_number = $row['card_number'];
             $this->expiry_date = $row['expiry_date'];
             $this->cvv = $row['cvv'];
             return true;
@@ -81,7 +77,7 @@ class Subscription {
                 SET 
                     end_date = :end_date,
                     plan = :plan,
-                    card_token = :card_token,
+                    card_number = :card_number,
                     expiry_date = :expiry_date,
                     cvv = :cvv
                 WHERE 
@@ -94,7 +90,7 @@ class Subscription {
         // Sanitize inputs
         $this->end_date = htmlspecialchars(strip_tags($this->end_date));
         $this->plan = htmlspecialchars(strip_tags($this->plan));
-        $this->card_token = htmlspecialchars(strip_tags($this->card_token));
+        $this->card_number = htmlspecialchars(strip_tags($this->card_number));
         $this->expiry_date = htmlspecialchars(strip_tags($this->expiry_date));
         $this->cvv = htmlspecialchars(strip_tags($this->cvv));
         $this->user_id = htmlspecialchars(strip_tags($this->user_id));
@@ -102,7 +98,7 @@ class Subscription {
         // Bind parameters
         $stmt->bindParam(":end_date", $this->end_date);
         $stmt->bindParam(":plan", $this->plan);
-        $stmt->bindParam(":card_token", $this->card_token);
+        $stmt->bindParam(":card_number", $this->card_number);
         $stmt->bindParam(":expiry_date", $this->expiry_date);
         $stmt->bindParam(":cvv", $this->cvv);
         $stmt->bindParam(":user_id", $this->user_id);
