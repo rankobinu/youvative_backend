@@ -11,10 +11,6 @@ class UserController {
         $this->db = $db;
     }
 
-    /**
-     * Update all user subscription statuses before fetching users
-     * This ensures we have the most current status information
-     */
     private function updateUserStatuses() {
         updateAllUserSubscriptionStatuses($this->db);
     }
@@ -166,12 +162,10 @@ class UserController {
     }
 
     public function getUsersByStatus($status, $page = 1, $limit = 10) {
-        // First update all user statuses to ensure they're current
         $this->updateUserStatuses();
         
         $offset = ($page - 1) * $limit;
         
-        // Get users by status with pagination
         $query = "SELECT id, username, email, created_at, status 
                  FROM users 
                  WHERE status = :status 
@@ -186,7 +180,6 @@ class UserController {
         
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Count total for pagination
         $countQuery = "SELECT COUNT(*) FROM users WHERE status = :status";
         $countStmt = $this->db->prepare($countQuery);
         $countStmt->bindParam(':status', $status);
@@ -240,24 +233,16 @@ class UserController {
         ];
     }
 
-    /**
-     * Get detailed information for a specific user by ID
-     * Primarily for admin use
-     * 
-     * @param int $userId The ID of the user to retrieve
-     * @return array User data with subscription information
-     */
     public function getUserById($userId) {
         $user = new User($this->db);
         $user->id = $userId;
         
         if ($user->findById()) {
-            // Get subscription information
             $subscription = new Subscription($this->db);
             $subscription->user_id = $userId;
-            $subscription_info = $subscription->getCurrentSubscription();
+            $subscription_info = $subscription->findByUserId() ? 
+                $subscription->getCurrentSubscription() : null;
             
-            // Get strategies
             $strategy = new Strategy($this->db);
             $strategy->user_id = $userId;
             $stmt = $strategy->findByUserId();

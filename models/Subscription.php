@@ -132,5 +132,21 @@ class Subscription {
 
         return max(0, $interval->days);
     }
+
+    public function getCurrentSubscription() {
+        if (!$this->findByUserId()) {
+            return null;
+        }
+        
+        return [
+            'id' => $this->id,
+            'plan' => $this->plan,
+            'start_date' => $this->start_date,
+            'end_date' => $this->end_date,
+            'days_left' => $this->getDaysLeft(),
+            'is_active' => $this->isActive($this->user_id),
+            'card_last_four' => substr($this->card_number, -4)
+        ];
+    }
 }
 ?>
