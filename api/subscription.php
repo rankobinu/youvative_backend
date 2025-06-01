@@ -41,7 +41,7 @@ switch ($endpoint) {
 
         // Obtenir les données de la requête
         $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data || !isset($data['card_number'], $data['expiry_date'], $data['cvv'], $data['plan'])) {
+        if (!$data || !isset($data['card_number'], $data['expiry_date'], $data['cvv'], $data['plan_type '])) {
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'Missing required fields']);
             exit();
