@@ -27,13 +27,13 @@ class Subscription {
         $stmt = $this->conn->prepare($query);
 
         // Sanitize inputs
-        $this->user_id = htmlspecialchars(strip_tags($this->user_id));
-        $this->start_date = htmlspecialchars(strip_tags($this->start_date));
-        $this->end_date = htmlspecialchars(strip_tags($this->end_date));
-        $this->plan = htmlspecialchars(strip_tags($this->plan));
-        $this->card_number = htmlspecialchars(strip_tags($this->card_number));
-        $this->expiry_date = htmlspecialchars(strip_tags($this->expiry_date));
-        $this->cvv = htmlspecialchars(strip_tags($this->cvv));
+        $this->user_id = htmlspecialchars(strip_tags((string)$this->user_id));
+        $this->start_date = htmlspecialchars(strip_tags((string)$this->start_date));
+        $this->end_date = htmlspecialchars(strip_tags((string)$this->end_date));
+        $this->plan = htmlspecialchars(strip_tags((string)$this->plan));
+        $this->card_number = htmlspecialchars(strip_tags((string)$this->card_number));
+        $this->expiry_date = htmlspecialchars(strip_tags((string)$this->expiry_date));
+        $this->cvv = htmlspecialchars(strip_tags((string)$this->cvv));
 
         // Bind parameters
         $stmt->bindParam(":user_id", $this->user_id);

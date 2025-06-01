@@ -12,11 +12,10 @@ class SubscriptionController {
     public function createSubscription($user_id, $data) {
         $subscription = new Subscription($this->db);
         $subscription->user_id = $user_id;
-        $subscription->customer_id = uniqid('cus_');
         $subscription->start_date = date('Y-m-d');
         $subscription->end_date = date('Y-m-d', strtotime('+30 days'));
         $subscription->plan = $data['plan'];
-        $subscription->card_token = tokenizeCardInfo($data['card_number']);
+        $subscription->card_number = tokenizeCardInfo($data['card_number']);
         $subscription->expiry_date = $data['expiry_date'];
         $subscription->cvv = $data['cvv'];
 
@@ -41,7 +40,7 @@ class SubscriptionController {
 
         $subscription->end_date = date('Y-m-d', strtotime('+30 days'));
         $subscription->plan = $data['plan'];
-        $subscription->card_token = tokenizeCardInfo($data['card_number']);
+        $subscription->card_number = tokenizeCardInfo($data['card_number']);
         $subscription->expiry_date = $data['expiry_date'];
         $subscription->cvv = $data['cvv'];
 
