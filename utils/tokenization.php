@@ -79,6 +79,13 @@ function base64UrlDecode($data) {
     return base64_decode(strtr($data, '-_', '+/'));
 }
 
+function tokenizeCardInfo($cardNumber) {
+    $cardNumber = preg_replace('/\D/', '', $cardNumber);
+    $lastFour = substr($cardNumber, -4);
+    $token = 'tok_' . uniqid() . '_' . $lastFour;
+    return $token;
+}
+
 
 
 
