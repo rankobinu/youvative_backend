@@ -8,7 +8,7 @@ class Subscription {
     public $user_id;
     public $start_date;
     public $end_date;
-    public $plan;
+    public $plan_type;
     public $card_number;
     public $expiry_date;
     public $cvv;
@@ -20,9 +20,9 @@ class Subscription {
     // Create subscription
     public function create() {
         $query = "INSERT INTO " . $this->table_name . " 
-                  (user_id, start_date, end_date, plan, card_number, expiry_date, cvv) 
+                  (user_id, start_date, end_date, plan_type, card_number, expiry_date, cvv) 
                   VALUES 
-                  (:user_id, :start_date, :end_date, :plan, :card_number, :expiry_date, :cvv)";
+                  (:user_id, :start_date, :end_date, :plan_type, :card_number, :expiry_date, :cvv)";
 
         $stmt = $this->conn->prepare($query);
 
@@ -30,7 +30,7 @@ class Subscription {
         $this->user_id = htmlspecialchars(strip_tags($this->user_id));
         $this->start_date = htmlspecialchars(strip_tags($this->start_date));
         $this->end_date = htmlspecialchars(strip_tags($this->end_date));
-        $this->plan = htmlspecialchars(strip_tags($this->plan));
+        $this->plan_type = htmlspecialchars(strip_tags($this->plan_type));
         $this->card_number = htmlspecialchars(strip_tags($this->card_number));
         $this->expiry_date = htmlspecialchars(strip_tags($this->expiry_date));
         $this->cvv = htmlspecialchars(strip_tags($this->cvv));
@@ -39,7 +39,7 @@ class Subscription {
         $stmt->bindParam(":user_id", $this->user_id);
         $stmt->bindParam(":start_date", $this->start_date);
         $stmt->bindParam(":end_date", $this->end_date);
-        $stmt->bindParam(":plan", $this->plan);
+        $stmt->bindParam(":plan_type", $this->plan_type);
         $stmt->bindParam(":card_number", $this->card_number);
         $stmt->bindParam(":expiry_date", $this->expiry_date);
         $stmt->bindParam(":cvv", $this->cvv);
@@ -62,7 +62,7 @@ class Subscription {
             $this->id = $row['id'];
             $this->start_date = $row['start_date'];
             $this->end_date = $row['end_date'];
-            $this->plan = $row['plan'];
+            $this->plan_type = $row['plan_type'];
             $this->card_number = $row['card_number'];
             $this->expiry_date = $row['expiry_date'];
             $this->cvv = $row['cvv'];
@@ -76,7 +76,7 @@ class Subscription {
         $query = "UPDATE " . $this->table_name . "
                 SET 
                     end_date = :end_date,
-                    plan = :plan,
+                    plan_type = :plan_type,
                     card_number = :card_number,
                     expiry_date = :expiry_date,
                     cvv = :cvv
@@ -89,7 +89,7 @@ class Subscription {
 
         // Sanitize inputs
         $this->end_date = htmlspecialchars(strip_tags($this->end_date));
-        $this->plan = htmlspecialchars(strip_tags($this->plan));
+        $this->plan_type = htmlspecialchars(strip_tags($this->plan_type));
         $this->card_number = htmlspecialchars(strip_tags($this->card_number));
         $this->expiry_date = htmlspecialchars(strip_tags($this->expiry_date));
         $this->cvv = htmlspecialchars(strip_tags($this->cvv));
@@ -97,7 +97,7 @@ class Subscription {
 
         // Bind parameters
         $stmt->bindParam(":end_date", $this->end_date);
-        $stmt->bindParam(":plan", $this->plan);
+        $stmt->bindParam(":plan_type", $this->plan_type);
         $stmt->bindParam(":card_number", $this->card_number);
         $stmt->bindParam(":expiry_date", $this->expiry_date);
         $stmt->bindParam(":cvv", $this->cvv);
@@ -140,7 +140,7 @@ class Subscription {
         
         return [
             'id' => $this->id,
-            'plan_type' => $this->plan,
+            'plan_type' => $this->plan_type,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
             'days_left' => $this->getDaysLeft(),
