@@ -1,12 +1,22 @@
 <?php
 require_once __DIR__ . '/../models/Task.php';
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../utils/task_status_updater.php';
 
 class TaskController {
     private $db;
 
     public function __construct($db) {
         $this->db = $db;
+    }
+    
+    /**
+     * Updates the status of overdue tasks before performing any task operations
+     * 
+     * @param int|null $user_id Optional user ID to update tasks for a specific user only
+     */
+    private function updateOverdueTasks($user_id = null) {
+        updateMissedTasks($this->db, $user_id);
     }
 
     public function createTask($user_id, $data) {
@@ -33,6 +43,9 @@ class TaskController {
     }
 
     public function getUserTasks($user_id) {
+        // Update overdue tasks before fetching
+        $this->updateOverdueTasks($user_id);
+        
         $task = new Task($this->db);
         $task->user_id = $user_id;
         $stmt = $task->findByUserId();
@@ -46,6 +59,9 @@ class TaskController {
     }
 
     public function updateTask($user_id, $task_id, $data) {
+        // Update overdue tasks before updating a specific task
+        $this->updateOverdueTasks($user_id);
+        
         // First, get the current task data
         $currentTask = new Task($this->db);
         $currentTask->task_id = $task_id;

@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../utils/tokenization.php';
 require_once __DIR__ . '/../utils/helpers.php';
+require_once __DIR__ . '/../utils/task_status_updater.php';
 
 header('Content-Type: application/json');
 
@@ -32,10 +33,13 @@ $userId = getAuthUserIdFromToken($token);
 $database = new Database();
 $db = $database->getConnection();
 
+// First update any overdue tasks
+updateMissedTasks($db, $userId);
+
 // Get upcoming tasks using direct SQL query
 $today = date('Y-m-d');
 $query = "SELECT * FROM tasks 
-          WHERE user_id = :user_id AND date > :today AND status = 'upcoming'
+          WHERE user_id = :user_id AND date >= :today AND status = 'upcoming'
           ORDER BY date ASC 
           LIMIT 10";
 

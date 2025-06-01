@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../controllers/TaskController.php';
 require_once __DIR__ . '/../utils/tokenization.php';
+require_once __DIR__ . '/../utils/task_status_updater.php';
 
 header('Content-Type: application/json');
 
@@ -44,6 +45,10 @@ if (!$userId) {
 
 $database = new Database();
 $db = $database->getConnection();
+
+// Update any overdue tasks before processing the request
+updateMissedTasks($db, $userId);
+
 $controller = new TaskController($db);
 
 switch ($method) {
