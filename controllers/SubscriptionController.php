@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/Subscription.php';
-require_once __DIR__ . '/../utils/tokenization.php'; // for tokenizeCardInfo()
+require_once __DIR__ . '/../utils/tokenization.php';
 
 class SubscriptionController {
     private $db;
@@ -14,8 +14,8 @@ class SubscriptionController {
         $subscription->user_id = $user_id;
         $subscription->start_date = date('Y-m-d');
         $subscription->end_date = date('Y-m-d', strtotime('+30 days'));
-        $subscription->plan = $data['plan'];
-        $subscription->card_number = tokenizeCardInfo($data['card_number']);
+        $subscription->plan_type = $data['plan_type'];
+        $subscription->card_number = $data['card_number']; 
         $subscription->expiry_date = $data['expiry_date'];
         $subscription->cvv = $data['cvv'];
 
@@ -39,8 +39,8 @@ class SubscriptionController {
         }
 
         $subscription->end_date = date('Y-m-d', strtotime('+30 days'));
-        $subscription->plan = $data['plan'];
-        $subscription->card_number = tokenizeCardInfo($data['card_number']);
+        $subscription->plan_type = $data['plan_type'];
+        $subscription->card_number = $data['card_number']; 
         $subscription->expiry_date = $data['expiry_date'];
         $subscription->cvv = $data['cvv'];
 
@@ -58,7 +58,7 @@ class SubscriptionController {
             return [
                 'status' => true,
                 'data' => [
-                    'plan' => $subscription->plan,
+                    'plan_type' => $subscription->plan_type,
                     'start_date' => $subscription->start_date,
                     'end_date' => $subscription->end_date,
                     'days_left' => $subscription->getDaysLeft()
