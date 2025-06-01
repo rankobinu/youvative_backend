@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../models/Subscription.php';
 require_once __DIR__ . '/../utils/tokenization.php';
+require_once __DIR__ . '/../utils/helpers.php';
 
 class SubscriptionController {
     private $db;

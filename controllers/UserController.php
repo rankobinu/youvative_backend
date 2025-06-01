@@ -59,7 +59,7 @@ class UserController {
                     'email' => $user->email,
                     'instagram' => $user->instagram,
                     'location' => $user->location,
-                    'avatar_image' => $user->avatar_image,
+                    'avatar' => $user->avatar,
                     'goal' => $user->goal,
                     'occupation' => $user->occupation,
                     'comment' => $user->comment,
@@ -101,7 +101,7 @@ class UserController {
                         'email' => $user->email,
                         'instagram' => $user->instagram,
                         'location' => $user->location,
-                        'avatar_image' => $user->avatar_image,
+                        'avatar' => $user->avatar,
                         'goal' => $user->goal,
                         'occupation' => $user->occupation,
                         'comment' => $user->comment,
@@ -258,6 +258,25 @@ class UserController {
                 ];
             }
             
+            // Get tasks
+            require_once __DIR__ . '/../models/Task.php';
+            $task = new Task($this->db);
+            $task->user_id = $userId;
+            $taskStmt = $task->findByUserId();
+            
+            $tasks = [];
+            while ($row = $taskStmt->fetch(PDO::FETCH_ASSOC)) {
+                $tasks[] = [
+                    'task_id' => $row['task_id'] ?? $row['id'],
+                    'type' => $row['type'],
+                    'headline' => $row['headline'],
+                    'purpose' => $row['purpose'],
+                    'date' => $row['date'],
+                    'status' => $row['status'],
+                    'created_at' => $row['created_at'] ?? null
+                ];
+            }
+            
             return [
                 'status' => true,
                 'user' => [
@@ -266,7 +285,7 @@ class UserController {
                     'email' => $user->email,
                     'instagram' => $user->instagram,
                     'location' => $user->location,
-                    'avatar_image' => $user->avatar_image,
+                    'avatar' => $user->avatar,
                     'goal' => $user->goal,
                     'occupation' => $user->occupation,
                     'comment' => $user->comment,
@@ -275,7 +294,8 @@ class UserController {
                     'created_at' => $user->created_at
                 ],
                 'subscription' => $subscription_info,
-                'strategies' => $strategies
+                'strategies' => $strategies,
+                'tasks' => $tasks
             ];
         }
         
