@@ -16,23 +16,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Include necessary files
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../utils/tokenization.php';
 require_once __DIR__ . '/../../utils/helpers.php';
 require_once __DIR__ . '/../../controllers/UserController.php';
 
-// Get the bearer token
 $token = getBearerToken();
 
-// Check if the user is authenticated
 if (!$token || !isAuthenticated($token)) {
     http_response_code(401);
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit();
 }
 
-// Database connection
 $database = new Database();
 $db = $database->getConnection();
 
@@ -43,7 +39,6 @@ $userController = new UserController($db);
 $userId = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
 if ($userId) {
-    // Get details for a specific user
     try {
         $result = $userController->getUserById($userId);
         

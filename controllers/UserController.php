@@ -238,44 +238,23 @@ class UserController {
         $user->id = $userId;
         
         if ($user->findById()) {
+            // Get subscription information
             $subscription = new Subscription($this->db);
             $subscription->user_id = $userId;
             $subscription_info = $subscription->findByUserId() ? 
                 $subscription->getCurrentSubscription() : null;
             
-            $strategy = new Strategy($this->db);
-            $strategy->user_id = $userId;
-            $stmt = $strategy->findByUserId();
+            // Get strategies using StrategyController
+            require_once __DIR__ . '/StrategyController.php';
+            $strategyController = new StrategyController($this->db);
+            $strategiesResult = $strategyController->getUserStrategies($userId);
+            $strategies = $strategiesResult['status'] ? $strategiesResult['strategies'] : [];
             
-            $strategies = [];
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $strategies[] = [
-                    'id' => $row['id'],
-                    'strategy_type' => $row['strategy_type'],
-                    'goal' => $row['goal'],
-                    'description' => $row['description'],
-                    'created_at' => $row['created_at']
-                ];
-            }
-            
-            // Get tasks
-            require_once __DIR__ . '/../models/Task.php';
-            $task = new Task($this->db);
-            $task->user_id = $userId;
-            $taskStmt = $task->findByUserId();
-            
-            $tasks = [];
-            while ($row = $taskStmt->fetch(PDO::FETCH_ASSOC)) {
-                $tasks[] = [
-                    'task_id' => $row['task_id'] ?? $row['id'],
-                    'type' => $row['type'],
-                    'headline' => $row['headline'],
-                    'purpose' => $row['purpose'],
-                    'date' => $row['date'],
-                    'status' => $row['status'],
-                    'created_at' => $row['created_at'] ?? null
-                ];
-            }
+            // Get tasks using TaskController
+            require_once __DIR__ . '/TaskController.php';
+            $taskController = new TaskController($this->db);
+            $tasksResult = $taskController->getUserTasks($userId);
+            $tasks = $tasksResult['status'] ? $tasksResult['tasks'] : [];
             
             return [
                 'status' => true,
