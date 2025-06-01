@@ -239,6 +239,66 @@ class UserController {
             ]
         ];
     }
+
+    /**
+     * Get detailed information for a specific user by ID
+     * Primarily for admin use
+     * 
+     * @param int $userId The ID of the user to retrieve
+     * @return array User data with subscription information
+     */
+    public function getUserById($userId) {
+        $user = new User($this->db);
+        $user->id = $userId;
+        
+        if ($user->findById()) {
+            // Get subscription information
+            $subscription = new Subscription($this->db);
+            $subscription->user_id = $userId;
+            $subscription_info = $subscription->getCurrentSubscription();
+            
+            // Get strategies
+            $strategy = new Strategy($this->db);
+            $strategy->user_id = $userId;
+            $stmt = $strategy->findByUserId();
+            
+            $strategies = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $strategies[] = [
+                    'id' => $row['id'],
+                    'strategy_type' => $row['strategy_type'],
+                    'goal' => $row['goal'],
+                    'description' => $row['description'],
+                    'created_at' => $row['created_at']
+                ];
+            }
+            
+            return [
+                'status' => true,
+                'user' => [
+                    'id' => $user->id,
+                    'username' => $user->username,
+                    'email' => $user->email,
+                    'instagram' => $user->instagram,
+                    'location' => $user->location,
+                    'avatar_image' => $user->avatar_image,
+                    'goal' => $user->goal,
+                    'occupation' => $user->occupation,
+                    'comment' => $user->comment,
+                    'strategy_type' => $user->strategy_type,
+                    'status' => $user->status,
+                    'created_at' => $user->created_at
+                ],
+                'subscription' => $subscription_info,
+                'strategies' => $strategies
+            ];
+        }
+        
+        return [
+            'status' => false,
+            'message' => 'User not found'
+        ];
+    }
 }
 ?>
 

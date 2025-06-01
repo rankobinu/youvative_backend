@@ -32,15 +32,47 @@ if (!$token || !isAuthenticated($token)) {
     exit();
 }
 
-// Get the endpoint parameter
-$endpoint = $_GET['endpoint'] ?? '';
-
 // Database connection
 $database = new Database();
 $db = $database->getConnection();
 
 // Create user controller
 $userController = new UserController($db);
+
+// Check if a specific user ID is requested
+$userId = isset($_GET['id']) ? (int)$_GET['id'] : null;
+
+if ($userId) {
+    // Get details for a specific user
+    try {
+        $result = $userController->getUserById($userId);
+        
+        if ($result['status']) {
+            echo json_encode([
+                'success' => true,
+                'data' => $result
+            ]);
+        } else {
+            http_response_code(404);
+            echo json_encode([
+                'success' => false,
+                'error' => $result['message']
+            ]);
+        }
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Database error',
+            'details' => $e->getMessage() // Remove in production
+        ]);
+    }
+    exit();
+}
+
+// If no specific user ID, proceed with listing users by status
+// Get the endpoint parameter
+$endpoint = $_GET['endpoint'] ?? '';
 
 // Pagination parameters
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -80,6 +112,4 @@ try {
         'details' => $e->getMessage() // Remove in production
     ]);
 }
-
-
 
