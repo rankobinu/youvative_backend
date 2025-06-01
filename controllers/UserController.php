@@ -1,8 +1,8 @@
 <?php
-require_once 'models/User.php';
-require_once 'models/Subscription.php';
-require_once 'models/Strategy.php';
-require_once 'utils/subscription_checker.php';
+require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/Subscription.php';
+require_once __DIR__ . '/../models/Strategy.php';
+require_once __DIR__ . '/../utils/subscription_checker.php';
 
 class UserController {
     private $db;
