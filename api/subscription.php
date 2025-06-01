@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 // Include necessary files
-require_once __DIR__ . '/../config/Database.php';
+require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../utils/tokenization.php';
 require_once __DIR__ . '/../utils/helpers.php';
 require_once __DIR__ . '/../controllers/SubscriptionController.php';
