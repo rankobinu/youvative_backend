@@ -49,10 +49,8 @@ class StrategyController {
         $strategy_id = $strategy->create();
 
         if ($strategy_id) {
-            // If this is a general strategy, update user status from 'new subscriber' to 'active'
-            if ($data['strategy_type'] === 'general') {
-                $this->activateNewUser($user_id);
-            }
+            // Update user status from 'new subscriber' to 'active' for any strategy type
+            $this->activateNewUser($user_id);
             
             return [
                 'status' => true, 
@@ -73,6 +71,9 @@ class StrategyController {
         $strategy->description = $data['description'];
 
         if ($strategy->update()) {
+            // Also update user status when updating a strategy
+            $this->activateNewUser($user_id);
+            
             return ['status' => true, 'message' => 'Strategy updated successfully'];
         }
 

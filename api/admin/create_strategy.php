@@ -60,7 +60,7 @@ $db = $database->getConnection();
 $strategyController = new StrategyController($db);
 $taskController = new TaskController($db);
 
-try {
+try 
     $db->beginTransaction();
     
     $strategyData = [
@@ -171,4 +171,5 @@ try {
         'message' => $e->getMessage()
     ]);
 }
+
 
